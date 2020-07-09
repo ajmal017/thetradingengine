@@ -28,7 +28,7 @@ class Stock(object):
                                self.end_date, r='1d')
 
         self.open = self.ohcl['Open']
-        self.close = self.ohcl['Adj Close']
+        self.close = self.ohcl['Close']
         self.high = self.ohcl['High']
         self.low = self.ohcl['Low']
         self.volume = self.ohcl['Volume']
@@ -58,14 +58,14 @@ class Stock(object):
         rolling = {'max_pc': max_pc, 'max_vol': max_vol}
         return rolling[mean_type]
 
-    def signal(self, data_date: datetime.date, window: int = 20):
+    def signal(self, data_date: datetime.date, window: int = 20, volume_margin: float = 1.5):
         try:
             data_ind = self.ohcl.index.get_loc(data_date)
 
             high = self.high.iloc[data_ind]
             max_pc = self.rolling_means('max_pc', data_ind - 1, window)
             volume = self.volume.iloc[data_ind]
-            max_volume = 1.5 * self.rolling_means('max_vol', data_ind - 1, window)
+            max_volume = volume_margin * self.rolling_means('max_vol', data_ind - 1, window)
             good_position = (high >= 0.99 * max_pc and volume > 0.99 * max_volume)
         except:
             good_position = False

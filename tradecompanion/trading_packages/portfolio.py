@@ -21,8 +21,8 @@ class Portfolio(object):
 
     def risk(self, price: float, atr: float, risk_per_trade: float,
              risk_ratio: float, stop_margin: float = 1.0):
-        sizing = {'stop_price': price - stop_margin * atr}
-        sizing['risk_per_share'] = price - sizing['stop_price']
+        sizing = {'risk_per_share': stop_margin * atr}
+        sizing['stop_price'] = price - sizing['risk_per_share']
         sizing['profit_per_share'] = risk_ratio * sizing['risk_per_share']
         sizing['shares_to_buy'] = round(self.total_value * risk_per_trade / sizing['risk_per_share'])
         sizing['target_price'] = price + sizing['profit_per_share']
@@ -51,13 +51,16 @@ class Position(object):
     target_price: float
     close_price: float = 0.0
     status: str = 'Open'
+    total_return: float = 0.0
     realized_pnl: float = 0.0
 
     def __post_init__(self):
         self.total_cost = self.open_price * self.nb_shares + Position.fees
         self.market_value = self.open_price * self.nb_shares
 
-    def close_position(self, price, date):
+    def close_position(self, price, data_date):
         self.status = 'Close'
-        self.close_date = date
-        self.realized_pnl = price * self.nb_shares - Position.fees
+        self.close_date = data_date
+        self.close_price = price
+        self.total_return = price * self.nb_shares - Position.fees
+        self.realized_pnl = self.total_return - self.total_cost
