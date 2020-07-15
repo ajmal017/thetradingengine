@@ -10,27 +10,28 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define variables and analysis parameters
-start_trading_date = date(2013, 3, 4)
-start_data_date = date(2012, 3, 2)
+start_trading_date = date(2015, 3, 4)
+start_data_date = date(2014, 3, 2)
 end_date = date.today()
 
 # Strategy testing parameters
 risk_per_trade = 0.01  # % of portfolio value on each trade
-risk_ratio = 2
+risk_ratio = 10
 cash_ratio = 0.01  # % of cash to maintain in the portfolio at all time
-initial_cash = 4000
+initial_cash = 10000
 signal_window = 10
 stop_margin_multiple = 1
 atr_window = 14
-vol_marg = 1.2
+vol_marg = 1.25
 
 # -------------------------------------------------------------------------- #
 # Initialize functions & engines
 # -------------------------------------------------------------------------- #
 
 # From Trading Universe, Select tickers to be added to equities_universe
-market_universe = ['AAPL', 'MSFT', 'AMZN', 'GOOGL', 'FB', 'JNJ', 'V', 'PG', 'JPM', 'UNH', 'MA', 'INTC', 'VZ',
-                   'HD', 'T', 'PFE', 'MRK', 'PEP']
+market_universe = ['L.TO', 'FTS.TO', 'PPl.TO', 'GIB-A.TO', 'FNV.TO', 'CSU.TO', 'GWO.TO', 'T.TO', 'NTR.TO', 'RCI-B.TO',
+                   'WCN.TO', 'SLF.TO', 'ABX.TO', 'CNQ.TO', 'CP.TO', 'CM.TO', 'ATD-B.TO', 'MFC.TO', 'TRI.TO', 'SU.TO',
+                   'BCE.TO', 'BMO.TO', 'TRP.TO', 'SHOP.TO', 'BAM-A.TO', 'CNR.TO', 'BNS.TO', 'ENB.TO', 'TD.TO', 'RY.TO']
 
 # Import OHCL data for equities_universe
 stock_data = [eu.Stock(i, start_data_date, end_date) for i in market_universe]
