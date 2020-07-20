@@ -40,7 +40,7 @@ class Portfolio(object):
 # -------------------------------------------------------------------------- #
 @dataclass
 class Position(object):
-    fees = 4.95/1.3  # Commission fees in USD
+    fees = 4.95 / 1.3  # Commission fees in USD
 
     ticker: str
     nb_shares: int

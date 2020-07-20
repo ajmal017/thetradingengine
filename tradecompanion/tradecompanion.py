@@ -1,48 +1,41 @@
 # -------------------------------------------------------------------------- #
 # Main Project script (Trading Engine)
 # -------------------------------------------------------------------------- #
-
 # Import Modules & Packages
 from datetime import date, timedelta
 from trading_packages import equities_universe as eu
 from trading_packages import portfolio as pf
 import pandas as pd
 import matplotlib.pyplot as plt
+from drawnow import drawnow
 
 # Define variables and analysis parameters
 start_trading_date = date(2015, 3, 4)
 start_data_date = date(2014, 3, 2)
 end_date = date.today()
-
 # Strategy testing parameters
 risk_per_trade = 0.01  # % of portfolio value on each trade
-risk_ratio = 10
+risk_ratio = 20
 cash_ratio = 0.01  # % of cash to maintain in the portfolio at all time
 initial_cash = 10000
 signal_window = 10
 stop_margin_multiple = 1
 atr_window = 14
 vol_marg = 1.25
-
 # -------------------------------------------------------------------------- #
 # Initialize functions & engines
 # -------------------------------------------------------------------------- #
-
 # From Trading Universe, Select tickers to be added to equities_universe
 market_universe = ['L.TO', 'FTS.TO', 'PPl.TO', 'GIB-A.TO', 'FNV.TO', 'CSU.TO', 'GWO.TO', 'T.TO', 'NTR.TO', 'RCI-B.TO',
                    'WCN.TO', 'SLF.TO', 'ABX.TO', 'CNQ.TO', 'CP.TO', 'CM.TO', 'ATD-B.TO', 'MFC.TO', 'TRI.TO', 'SU.TO',
                    'BCE.TO', 'BMO.TO', 'TRP.TO', 'SHOP.TO', 'BAM-A.TO', 'CNR.TO', 'BNS.TO', 'ENB.TO', 'TD.TO', 'RY.TO']
-
 # Import OHCL data for equities_universe
 stock_data = [eu.Stock(i, start_data_date, end_date) for i in market_universe]
 equities = dict(zip(market_universe, stock_data))
-
 # Initialize a portfolio object
 my_portfolio = pf.Portfolio('Momo', start_trading_date, cash_value=initial_cash)
-
 # Initialize a trading log dictionary
 my_log = []
-
 # Initialize a trading engine
 date_index = stock_data[0].ohcl.index
 ind_1 = date_index.get_loc(start_trading_date)
@@ -50,16 +43,24 @@ date_array_full = date_index.date
 date_array = date_array_full[ind_1:]
 trading_engine = pd.DataFrame(
     index=date_array,
-    data={'Portfolio cash value': my_portfolio.cash_value,
-          'Portfolio market value': my_portfolio.market_value,
-          'Portfolio total value': my_portfolio.total_value})
+    data={'Portfolio cash value': None,
+          'Portfolio market value': None,
+          'Portfolio total value': None})
+
+
+# Definition of a the figure plotting function
+def make_fig():
+    plt.plot(trading_engine['Portfolio total value'])
+
+
+plt.ion()  # enable interactivity
+fig = plt.figure()  # make a figure
 
 # -------------------------------------------------------------------------- #
 # Start looping over the Trading Window
 # -------------------------------------------------------------------------- #
 # POSITION OPENING ACTION SCRIPT IS PERFORMED BEFORE MARKET OPEN
 # POSITION CLOSING ACTION IS PERFORMED DURING MARKET
-
 for i, data_date in enumerate(date_array):
     previous_date = date_array_full[i + ind_1 - 1]
     actual_cash_ratio = my_portfolio.cash_value / my_portfolio.total_value
@@ -100,7 +101,6 @@ for i, data_date in enumerate(date_array):
                                               target_price=position_sizing['target_price']))
                     my_portfolio.cash_value -= my_log[-1].total_cost
         del tick, vol
-
     # Loop over the trading log to see if we had to close a position during the trading time frame
     my_portfolio.market_value = 0
     if len(my_log) != 0:
@@ -120,17 +120,16 @@ for i, data_date in enumerate(date_array):
                 my_portfolio.market_value += equities[position.ticker].close[data_date] * position.nb_shares
 
     my_portfolio.total_value = my_portfolio.market_value + my_portfolio.cash_value
+    # Trading engine data frame update
     trading_engine.loc[data_date, 'Portfolio cash value'] = my_portfolio.cash_value
     trading_engine.loc[data_date, 'Portfolio market value'] = my_portfolio.market_value
     trading_engine.loc[data_date, 'Portfolio total value'] = my_portfolio.total_value
-
+    # Real-time figure drawing function
+    drawnow(make_fig)
+    plt.pause(0.001)
 # -------------------------------------------------------------------------- #
 # Performance Visualization
-# -------------------------------------------------------------------------- #
-plt.plot(trading_engine['Portfolio total value'])
-plt.show()
-print(trading_engine)
-
+# -------------------------------------------------------------------------
 my_log_df = pd.DataFrame({'ticker': [x.ticker for x in my_log], 'Nb of Shares': [x.nb_shares for x in my_log],
                           'Open Date': [x.open_date for x in my_log], 'Close_date': [x.close_date for x in my_log],
                           'Status': [x.status for x in my_log], 'Realized PnL': [x.realized_pnl for x in my_log],

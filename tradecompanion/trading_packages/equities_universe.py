@@ -7,7 +7,6 @@ import datetime
 import pandas as pd
 import yfinance as yf
 from pandas_datareader import data as pdr
-from numpy import log
 from dataclasses import dataclass
 
 # This method will override the original data reader method
