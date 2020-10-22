@@ -1,6 +1,8 @@
-yfinance~=0.1.54
-pandas~=1.0.5
-numpy~=1.18.5
-matplotlib~=3.2.2
-openpyxl~=3.0.3
+yfinance~=0.1.55
+pandas~=1.1.3
+numpy~=1.19.1
+matplotlib~=3.3.1
+openpyxl~=3.0.5
 drawnow~=0.72.5
+requests~=2.24.0
+beautifulsoup4~=4.9.3
